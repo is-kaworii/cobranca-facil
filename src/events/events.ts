@@ -1,8 +1,10 @@
-import { client } from "..";
+import { client, logger } from "..";
+import { onReady } from "./onReady";
 
 export function events() {
+  logger.info("Event listeners")
   client
-    .once("ready", () => {})
+    .once("ready", onReady)
     .on("channelCreate", () => {})
     .on("channelDelete", () => {})
     .on("channelUpdate", () => {})
