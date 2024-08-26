@@ -1,5 +1,7 @@
 import { Client, IntentsBitField } from "discord.js";
+import "dotenv/config";
 import { database } from "./database/database";
+import { discord } from "./discord";
 
 console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 console.clear();
@@ -16,6 +18,7 @@ export const client = new Client({
 
 async function start() {
   await database()
+  await discord()
 }
   
 start();
