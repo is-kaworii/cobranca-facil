@@ -1,14 +1,16 @@
 import { client, logger } from "..";
-import { onReady } from "./ready.events";
+import { guildAvailableEvent } from "./guildAvailable.event";
+import { interactionCreateEvent } from "./interactionCreate.event";
+import { readyEvent } from "./ready.event";
 
 export function events() {
   logger.info("Event listeners")
   client
-    .once("ready", onReady)
+    .once("ready", readyEvent)
     .on("channelCreate", () => {})
     .on("channelDelete", () => {})
     .on("channelUpdate", () => {})
-    .on("guildAvailable", () => {})
+    .on("guildAvailable", guildAvailableEvent)
     .on("guildBanAdd", () => {})
     .on("guildBanRemove", () => {})
     .on("guildCreate", () => {})
@@ -17,7 +19,7 @@ export function events() {
     .on("guildMemberAdd", () => {})
     .on("guildMemberRemove", () => {})
     .on("guildMemberUpdate", () => {})
-    .on("interactionCreate", () => {})
+    .on("interactionCreate", interactionCreateEvent)
     .on("messageCreate", () => {})
     .on("messageDelete", () => {})
     .on("messageUpdate", () => {})
