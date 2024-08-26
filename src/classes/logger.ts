@@ -53,9 +53,9 @@ export class Logger {
 
   private formatError(error: Error | unknown): string {
     if (error instanceof Error) {
-      return `Error Message: ${error.message}\nStack: ${error.stack}`
+      return `Error Message: ${error.message}\nStack: ${error.stack}`;
     } else {
-      return `Unknow Error: ${JSON.stringify(error)}`
+      return `Unknow Error: ${JSON.stringify(error)}`;
     }
   }
 
@@ -89,9 +89,9 @@ export class Logger {
       .replace(",", "");
     const callerFile = this.getCallerFile();
     const [pathFile, lines] = callerFile.split(":::");
-    return `[${timestamp}] ${level.padEnd(5)} ln${lines
+    return `[${timestamp}] ${level.padEnd(5)} ➡️ ${message.padEnd(45)} ▶ ${pathFile} ln${lines
       .split(":")[0]
-      ?.padEnd(3)} ➡️ ${message} ⬜ ${pathFile} `;
+      ?.padEnd(3)}`;
   }
 
   private getCallerFile() {
