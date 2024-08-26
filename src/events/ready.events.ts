@@ -15,6 +15,6 @@ function setBotStatus(activityName: string) {
 
     logger.info(`Set bot status to ${activityName}`);
   } catch (error) {
-    logger.error("failed to set activity status", error);
+    logger.warn("failed to set activity status");
   }
 }

@@ -1,5 +1,5 @@
 import { client, logger } from "..";
-import { onReady } from "./onReady";
+import { onReady } from "./ready.events";
 
 export function events() {
   logger.info("Event listeners")
