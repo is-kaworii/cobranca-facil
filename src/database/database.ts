@@ -1,4 +1,4 @@
-import { connect, connection, ConnectOptions, disconnect } from "mongoose";
+import { connect, connection, ConnectOptions } from "mongoose";
 import { logger } from "..";
 import { exit } from "../utils/exit";
 
@@ -16,7 +16,5 @@ export async function database() {
   } catch (error) {
     logger.fatal("Error connecting to MongoDB:", error);
     exit(100)
-  } finally {
-    await disconnect();
   }
 }
