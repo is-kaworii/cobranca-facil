@@ -1,7 +1,7 @@
 import { ActivityType } from "discord.js";
 import { client, logger } from "..";
 
-export function onReady() {
+export function readyEvent() {
   logger.info(`BOT: ${client.user?.username}`);
   setBotStatus("MercadoPago");
 }
