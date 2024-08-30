@@ -1,4 +1,15 @@
+import { CommandInteraction, Interaction, User } from "discord.js";
 import * as fs from "fs";
+
+interface ErrorOptions {
+  toDiscord?: boolean;
+  user?: User;
+  interaction?: Interaction | CommandInteraction;
+}
+
+interface InteractionOptions {
+  interaction?: Interaction | CommandInteraction;
+}
 
 export class Logger {
   // OFF: Nenhuma mensagem é gravada.
@@ -17,21 +28,21 @@ export class Logger {
     }
   }
 
-  off(message: string, toDiscord: boolean = false): string {
+  off(message: string): string {
     const formattedMessage = this.formatMessage("OFF", message);
     console.log(formattedMessage);
     return formattedMessage;
   }
-  fatal(message: string, error: unknown, toDiscord: boolean = false): string {
-    const formattedMessage = this.formatMessage("FATAL", message);
+  fatal(message: string, error: unknown, options?: ErrorOptions): string {
+    const formattedMessage = this.formatMessage("FATAL", message, options);
     const formattedError = this.formatError(error);
     console.error(formattedMessage);
     console.error(error);
     this.appendMessage(`${formattedMessage}\n${formattedError}`);
     return formattedMessage;
   }
-  error(message: string, error: unknown, toDiscord: boolean = false): string {
-    const formattedMessage = this.formatMessage("ERROR", message);
+  error(message: string, error: unknown, options?: ErrorOptions): string {
+    const formattedMessage = this.formatMessage("ERROR", message, options);
     const formattedError = this.formatError(error);
     console.error(formattedMessage);
     console.error(error);
@@ -46,6 +57,16 @@ export class Logger {
   }
   info(message: string, toDiscord: boolean = false): string {
     const formattedMessage = this.formatMessage("INFO", message);
+    console.log(formattedMessage);
+    this.appendMessage(formattedMessage);
+    return formattedMessage;
+  }
+  init(option: InteractionOptions): string {
+    const interaction = option.interaction;
+    const formattedMessage = this.formatMessage(
+      "INFO",
+      `command ${interaction?.isCommand() ? interaction.commandName : ""}: starting`
+    );
     console.log(formattedMessage);
     this.appendMessage(formattedMessage);
     return formattedMessage;
@@ -75,7 +96,11 @@ export class Logger {
     });
   }
 
-  private formatMessage(level: string, message: string): string {
+  private formatMessage(level: string, message: string, options?: ErrorOptions): string {
+    const toDiscord = options?.toDiscord;
+    const user = options?.user;
+    const interaction = options?.interaction;
+
     const dateTimeOptions: Intl.DateTimeFormatOptions = {
       year: "numeric",
       month: "2-digit",
@@ -89,9 +114,19 @@ export class Logger {
       .replace(",", "");
     const callerFile = this.getCallerFile();
     const [pathFile, lines] = callerFile.split(":::");
-    return `[${timestamp}] ${level.padEnd(5)} ➡️ ${message.padEnd(45)} ▶ ${pathFile} ln${lines
-      .split(":")[0]
-      ?.padEnd(3)}`;
+
+    let finalMessage = "";
+    finalMessage += `[${timestamp}] `; // timestamp
+    finalMessage += `${level.padEnd(5)} ➡️ `; // level
+    if (user) finalMessage += `<user:${user.displayName}> `;
+    if (interaction) {
+      finalMessage += `<user:${interaction.user.displayName}> `;
+    }
+    finalMessage += `${message.padEnd(45)} `; // message
+    finalMessage += `▶ ${pathFile} `; // path
+    finalMessage += `ln${lines.split(":")[0]?.padEnd(3)}`; // line
+
+    return finalMessage;
   }
 
   private getCallerFile() {

@@ -4,6 +4,7 @@ import { Logger } from "./classes/logger";
 import { database } from "./database/database";
 import { discord } from "./discord";
 import { events } from "./events/events";
+import { app } from "./server/server";
 import { exit } from "./utils/exit";
 
 console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
@@ -21,6 +22,7 @@ export const client = new Client({
 });
 
 async function start() {
+  await app
   await database();
   await discord();
   events();

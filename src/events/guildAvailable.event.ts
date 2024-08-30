@@ -15,12 +15,14 @@ export async function guildAvailableEvent(guild: Guild) {
 }
 
 async function initializeGuildInDatabase(guild: Guild) {
-  const guildDb = new ModelGuild({
-    guildId: guild.id,
-    guildName: guild.name,
-    guildOwner: guild.ownerId,
-    categoryCartId: null,
-  });
-  await guildDb.save();
-  logger.info(`Guild (${guild.name}) saved in database`);
+  if (!(await ModelGuild.findOne({ guildId: guild.id }))) {
+    const guildDb = new ModelGuild({
+      guildId: guild.id,
+      guildName: guild.name,
+      guildOwner: guild.ownerId,
+      categoryCartId: null,
+    });
+    await guildDb.save();
+    logger.info(`Guild (${guild.name}) saved in database`);
+  }
 }

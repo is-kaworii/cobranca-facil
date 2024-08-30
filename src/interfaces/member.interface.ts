@@ -3,9 +3,6 @@ export interface MemberInterface {
   globalName: string;
   username: string;
   subscriptions: string[]; // orderId
-  cart: {
-    messageId: string | null;
-    productsId: string[]; // productsId
-  };
+  cartId: string | null;
   createdAt: Date;
 }
