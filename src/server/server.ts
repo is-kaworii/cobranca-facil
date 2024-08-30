@@ -8,6 +8,10 @@ const clientConfig = new MercadoPagoConfig({
 
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.json({success: true});
+})
+
 app.post("/callback", (req, res) => {
   const payment = new Payment(clientConfig);
   console.log('a')
