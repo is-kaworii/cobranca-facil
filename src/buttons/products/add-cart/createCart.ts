@@ -109,13 +109,13 @@ async function createChannel(interaction: ButtonInteraction) {
             "MentionEveryone",
             "ManageNicknames",
             "ManageMessages",
-            "ReadMessageHistory",
             "UseApplicationCommands",
           ],
         },
         {
           id: interaction.user.id,
-          allow: ["ViewChannel"],
+          allow: ["ViewChannel",
+            "ReadMessageHistory",],
         },
       ],
     });
