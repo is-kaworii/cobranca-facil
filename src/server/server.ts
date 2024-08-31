@@ -19,9 +19,8 @@ app.post("/callback", (req, res) => {
   console.log(req.body);
 
   if (!req.body.data) return;
-
   payment
-    .get({ id: req.body.id })
+    .get({ id: req.body.data.id })
     .then(async (data) => {
       console.log(data);
       await paymentTemp(data.id!);
