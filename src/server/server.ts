@@ -1,5 +1,6 @@
 import express from "express";
 import MercadoPagoConfig, { Payment } from "mercadopago";
+import { paymentTemp } from "../buttons/payment/paymentTemp";
 
 export const app = express();
 const clientConfig = new MercadoPagoConfig({
@@ -8,24 +9,24 @@ const clientConfig = new MercadoPagoConfig({
 
 app.use(express.json());
 
-app.get('/', (req, res) => {
-  res.json({success: true});
-})
+app.get("/", (req, res) => {
+  res.json({ success: true });
+});
 
 app.post("/callback", (req, res) => {
   const payment = new Payment(clientConfig);
-  console.log('a')
+  console.log("a");
 
   if (!req.body.data) return;
 
   payment
     .get({ id: req.body.id })
-    .then((data) => {
-      console.log(data);
+    .then(async (data) => {
+      await paymentTemp(data.id!);
     })
     .catch(console.error);
 });
 
-app.listen(9005, () => {
-  console.log("listening on http://localhost:9005");
+app.listen(1337, () => {
+  console.log("listening on http://localhost:1337");
 });

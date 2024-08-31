@@ -1,5 +1,6 @@
 export interface PaymentInterface {
   id: number;
+  log_message_id: string;
   date_created: string;
   date_aproved: string | null;
   date_of_expiration: string | null;
@@ -13,7 +14,13 @@ export interface PaymentInterface {
   description: string | null;
   live_mode: boolean;
   taxes_amount: number | null;
-  metadata: object | null;
+  metadata: {
+    guild_id: string;
+    channel_id: string;
+    member_id: string;
+    products: [];
+    created_at: string;
+  };
   transaction_amount: number | null;
   transaction_amount_refunded: number | null;
   transaction_details: {
@@ -42,15 +49,12 @@ export interface PaymentInterface {
   processing_mode: string | null;
   acquirer: string | null;
   point_of_interaction: {
-    type: string | null;
     sub_type: string | null;
     application_data: {
       name: string | null;
       version: string | null;
     };
     transaction_data: {
-      qr_code_base64: string | null;
-      qr_code: string | null;
       ticket_url: string | null;
     };
   };

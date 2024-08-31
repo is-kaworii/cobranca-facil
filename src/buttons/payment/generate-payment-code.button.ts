@@ -23,6 +23,7 @@ export async function execute(interaction: ButtonInteraction) {
       memberId: interaction.user.id,
       email: "caroldinizc21@gmail.com",
       price: totalPrice,
+      products: products,
     });
 
     const imageBase64 =
@@ -43,9 +44,11 @@ export async function execute(interaction: ButtonInteraction) {
     await interaction.deferReply();
     await interaction.deleteReply();
 
-    await ModelCart.deleteOne({channelId: interaction.channelId})
+    await ModelCart.deleteOne({ channelId: interaction.channelId });
 
     fs.unlinkSync(nameFileTemp);
+
+    //await paymentTemp(paymentRequest.id!);
   } catch (error) {
     logger.error("Error executing generate payment link", error);
   }
