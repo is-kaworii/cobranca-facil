@@ -60,8 +60,6 @@ export async function paymentTemp(data: PaymentResponse) {
 
     if (data.status === "approved") {
       await approvedPayment(data);
-    } else {
-      await approvedPayment(data);
     }
   } catch (error) {
     logger.error("Error executing payment Processing", error);
