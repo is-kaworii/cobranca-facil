@@ -16,7 +16,7 @@ const memberSchema: Schema<MemberInterface> = new Schema({
     unique: true,
   },
   subscriptions: {
-    type: [String],
+    type: [Number],
     default: [],
   },
   cartId: {

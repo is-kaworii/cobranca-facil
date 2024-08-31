@@ -63,6 +63,7 @@ const paymentSchema: Schema<PaymentInterface> = new Schema({
       },
     },
   },
+  expiraction_date: { type: String}
 });
 
 export const ModelPayment = model("Payments", paymentSchema);

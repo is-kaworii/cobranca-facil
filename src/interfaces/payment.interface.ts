@@ -54,4 +54,5 @@ export interface PaymentInterface {
       ticket_url?: string | null;
     };
   };
+  expiraction_date?: string | null;
 }

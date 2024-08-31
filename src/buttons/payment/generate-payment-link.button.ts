@@ -8,6 +8,7 @@ import { logger } from "../..";
 import { PaymentMercadoPago } from "../../classes/payment";
 import { ModelCart } from "../../models/cart.model";
 import { getProducts } from "../products/product-go-to-payment.button";
+import { paymentTemp } from "./paymentTemp";
 
 const payment = new PaymentMercadoPago(process.env.accessToken!);
 
@@ -42,7 +43,7 @@ export async function execute(interaction: ButtonInteraction) {
     
     await ModelCart.deleteOne({channelId: interaction.channelId})
 
-    //await paymentTemp(paymentRequest.id!)
+    await paymentTemp(paymentRequest)
     
   } catch (error) {
     logger.error("Error executing generate payment link", error);

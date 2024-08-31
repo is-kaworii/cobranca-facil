@@ -2,7 +2,7 @@ export interface MemberInterface {
   memberId: string;
   globalName: string;
   username: string;
-  subscriptions: string[]; // orderId
+  subscriptions: number[] | null; // orderId
   cartId: string | null;
   createdAt: Date;
 }
