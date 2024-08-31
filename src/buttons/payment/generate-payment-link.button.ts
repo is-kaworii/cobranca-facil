@@ -27,6 +27,7 @@ export async function execute(interaction: ButtonInteraction) {
       memberId: interaction.user.id,
       email: "caroldinizc21@gmail.com",
       price: totalPrice,
+      products: products,
     });
 
     const paymentLinkButton = new ButtonBuilder()
@@ -40,6 +41,9 @@ export async function execute(interaction: ButtonInteraction) {
     await interaction.update({ components: [row1] });
     
     await ModelCart.deleteOne({channelId: interaction.channelId})
+
+    //await paymentTemp(paymentRequest.id!)
+    
   } catch (error) {
     logger.error("Error executing generate payment link", error);
   }
