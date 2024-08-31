@@ -57,8 +57,8 @@ export async function execute(interaction: ButtonInteraction) {
     fs.unlinkSync(nameFileTemp);
 
     logger.info("Cart and QR Code temp.png deleted successfully");
-    //await paymentTemp(paymentRequest);
+    //await paymentTemp(paymentRequest)
   } catch (error) {
-    logger.error("Error executing generate payment link", error);
+    logger.error("Error executing generate payment qr code", error);
   }
 }

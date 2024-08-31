@@ -1,22 +1,30 @@
 import { EmbedBuilder } from "@discordjs/builders";
-import { TextChannel } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  GuildMember,
+  TextChannel,
+} from "discord.js";
 import { PaymentResponse } from "mercadopago/dist/clients/payment/commonTypes";
-import { client } from "../..";
+import { client, logger } from "../..";
 import { ModelMember } from "../../models/member.model";
 import { ModelPayment } from "../../models/payment.model";
 import { ModelProduct } from "../../models/product.model";
 
 export async function approvedPayment(payment: PaymentResponse) {
+  logger.info("Starting approved payment");
   try {
-    const guildId = payment.metadata.guild_id;
-    const guild = client.guilds.resolve(guildId);
+    console.log(payment.metadata);
+    const guild = client.guilds.resolve(payment.metadata.guild_id);
     const channel = guild.channels.cache.get(payment.metadata.channel_id) as TextChannel;
+    const member = guild.members.resolve(payment.metadata.member_id);
 
-    const productDb = await ModelProduct.findOne({ id: payment.id });
-    const memberDb = await ModelMember.findOne({ memberId: payment.metadata.member_id });
-    const paymentDb = await ModelPayment.findOne({ id: payment.id });
+    const memberDb = await createMemberInDatabase(member);
+    const paymentDb = await ModelPayment.findOne({ id: payment.id }).catch(console.error);
 
-    if (!productDb || !memberDb || !paymentDb) return;
+    if (!memberDb || !paymentDb)
+      throw new Error("productDb or memberDb or paymentDb not found");
 
     const products: [{ id: string; name: string; quant: number }] =
       payment.metadata.products;
@@ -25,14 +33,13 @@ export async function approvedPayment(payment: PaymentResponse) {
     paymentDb!.expiraction_date = ajustarDiaProximoMes(new Date()).toISOString();
 
     for (let i = 0; i < products.length; i++) {
-      const product = await ModelProduct.findOne({
+      const productDb = await ModelProduct.findOne({
         id: products[i].id,
       });
 
-      if (product) {
-        product.roles.forEach((roleId) => {
+      if (productDb) {
+        productDb.roles.forEach((roleId) => {
           const role = guild.roles.resolve(roleId);
-          const member = guild.members.resolve(payment.metadata.member_id);
           if (role) {
             member.roles.add(role);
           }
@@ -48,7 +55,14 @@ export async function approvedPayment(payment: PaymentResponse) {
       .setTimestamp(new Date())
       .setColor(0x00ff00);
 
-    await channel.send({ embeds: [embed] });
+    const closeButton = new ButtonBuilder()
+      .setCustomId("productCancelCartButton")
+      .setLabel("Fechar")
+      .setStyle(ButtonStyle.Success)
+      .setEmoji("😀");
+    const row: any = new ActionRowBuilder().addComponents(closeButton);
+
+    await channel.send({ embeds: [embed], components: [row] });
     await memberDb.save();
     await paymentDb.save();
 
@@ -81,4 +95,23 @@ function ajustarDiaProximoMes(data: Date) {
   }
 
   return novaData;
+}
+
+async function createMemberInDatabase(member: GuildMember) {
+  try {
+    const memberDb = await ModelMember.findOne({ memberId: member.user.id });
+    if (memberDb) return memberDb;
+
+    const newMember = new ModelMember({
+      memberId: member.user.id,
+      globalName: member.user.globalName,
+      username: member.user.username,
+      subscriptions: [],
+    });
+
+    await newMember.save();
+    return newMember;
+  } catch (error) {
+    logger.error("Error getting or creating member in database", error);
+  }
 }

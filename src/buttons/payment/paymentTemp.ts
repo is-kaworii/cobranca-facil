@@ -4,6 +4,7 @@ import { Document, Types } from "mongoose";
 import { client, logger } from "../..";
 import { PaymentInterface } from "../../interfaces/payment.interface";
 import { ModelPayment } from "../../models/payment.model";
+import { approvedPayment } from "./approved-payment";
 
 type paymentDocument = Document<unknown, {}, PaymentInterface> &
   PaymentInterface & {
@@ -46,14 +47,21 @@ export async function paymentTemp(data: PaymentResponse) {
 
       const embed = createMessageEmbed(paymentDb);
 
-      await channel
-        .send({ content: "API Mercado Pago", embeds: [embed] })
-        .then(async (message) => {
-          paymentDb.log_message_id = message.id;
-          await paymentDb.save();
-        })
-        .catch(console.error);
+      const message = await channel.send({
+        content: "API Mercado Pago",
+        embeds: [embed],
+      });
+
+      paymentDb.log_message_id = message.id;
+      await paymentDb.save();
+
       logger.info("Created payment log message successfully");
+    }
+
+    if (data.status === "approved") {
+      await approvedPayment(data);
+    } else {
+      await approvedPayment(data);
     }
   } catch (error) {
     logger.error("Error executing payment Processing", error);
