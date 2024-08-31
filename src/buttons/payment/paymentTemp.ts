@@ -33,81 +33,7 @@ async function updateLogMessage(payment: paymentDocument) {
     const guild = await client.guilds.resolve(guildId!);
     const channel = (await guild?.channels.resolve("1277466443415294052")) as TextChannel;
 
-    const embed = new EmbedBuilder()
-      .setTitle("LOG DE VENDA")
-      .setTimestamp(new Date())
-      .setFields([
-        {
-          name: "ID da venda",
-          value: `${payment.id}`,
-          inline: true,
-        },
-        {
-          name: "ID do comprador",
-          value: `<@${payment.metadata?.member_id}>`,
-          inline: true,
-        },
-        {
-          name: "Live Mode",
-          value: payment.live_mode ? "Produção" : "Teste",
-          inline: true,
-        },
-        {
-          name: "Data de criação",
-          value: `${payment.date_created?.replace("T", " ").split(".")[0]} UTC`,
-          inline: true,
-        },
-        {
-          name: "Data de aprovação",
-          value: `${payment.date_aproved?.replace("T", " ").split(".")[0]} UTC`,
-          inline: true,
-        },
-        {
-          name: "Data de expiração",
-          value: `${payment.date_of_expiration?.replace("T", " ").split(".")[0]} UTC`,
-          inline: true,
-        },
-        {
-          name: "Status",
-          value: `${payment.status?.toUpperCase()}`,
-          inline: true,
-        },
-        {
-          name: "Detalhes de Status",
-          value: `${payment.status_detail?.toUpperCase()}`,
-          inline: true,
-        },
-        {
-          name: "Metodo de pagamento",
-          value: `${payment.payment_method_id?.toUpperCase()}`,
-          inline: true,
-        },
-        {
-          name: "Valor Transação",
-          value: convetToRealString(payment.transaction_amount),
-          inline: true,
-        },
-        {
-          name: "Valor Refunded",
-          value: convetToRealString(payment.transaction_amount_refunded),
-          inline: true,
-        },
-        {
-          name: "Valor Recebido",
-          value: convetToRealString(payment.transaction_details?.net_received_amount),
-          inline: true,
-        },
-        {
-          name: "Taxas",
-          value: convetToRealString(payment.taxes_amount),
-          inline: false,
-        },
-        {
-          name: "Produtos",
-          value: `aaaaaaaaaa`,
-          inline: false,
-        },
-      ]);
+    const embed = embedCreator(payment);
 
     const messageId = payment.log_message_id;
     const message = await channel.messages.resolve(messageId!);
@@ -124,81 +50,7 @@ async function createLogMessage(payment: paymentDocument) {
     const guild = await client.guilds.resolve(guildId!);
     const channel = (await guild?.channels.resolve("1277466443415294052")) as TextChannel;
 
-    const embed = new EmbedBuilder()
-      .setTitle("LOG DE VENDA")
-      .setTimestamp(new Date())
-      .setFields([
-        {
-          name: "ID da venda",
-          value: `${payment.id}`,
-          inline: true,
-        },
-        {
-          name: "ID do comprador",
-          value: `<@${payment.metadata?.member_id}>`,
-          inline: true,
-        },
-        {
-          name: "Live Mode",
-          value: payment.live_mode ? "Produção" : "Teste",
-          inline: true,
-        },
-        {
-          name: "Data de criação",
-          value: `${payment.date_created?.replace("T", " ").split(".")[0]} UTC`,
-          inline: true,
-        },
-        {
-          name: "Data de aprovação",
-          value: `${payment.date_aproved?.replace("T", " ").split(".")[0]} UTC`,
-          inline: true,
-        },
-        {
-          name: "Data de expiração",
-          value: `${payment.date_of_expiration?.replace("T", " ").split(".")[0]} UTC`,
-          inline: true,
-        },
-        {
-          name: "Status",
-          value: `${payment.status?.toUpperCase()}`,
-          inline: true,
-        },
-        {
-          name: "Detalhes de Status",
-          value: `${payment.status_detail?.toUpperCase()}`,
-          inline: true,
-        },
-        {
-          name: "Metodo de pagamento",
-          value: `${payment.payment_method_id?.toUpperCase()}`,
-          inline: true,
-        },
-        {
-          name: "Valor Transação",
-          value: convetToRealString(payment.transaction_amount),
-          inline: true,
-        },
-        {
-          name: "Valor Refunded",
-          value: convetToRealString(payment.transaction_amount_refunded),
-          inline: true,
-        },
-        {
-          name: "Valor Recebido",
-          value: convetToRealString(payment.transaction_details?.net_received_amount),
-          inline: true,
-        },
-        {
-          name: "Taxas",
-          value: convetToRealString(payment.taxes_amount),
-          inline: false,
-        },
-        {
-          name: "Produtos",
-          value: `aaaaaaaaaa`,
-          inline: false,
-        },
-      ]);
+    const embed = embedCreator(payment);
 
     await channel
       .send({ content: "API Mercado Pago", embeds: [embed] })
@@ -210,6 +62,86 @@ async function createLogMessage(payment: paymentDocument) {
   } catch (error) {
     logger.error("Error creating log message", error);
   }
+}
+
+function embedCreator(payment: paymentDocument) {
+  const embed = new EmbedBuilder()
+    .setTitle("LOG DE VENDA")
+    .setTimestamp(new Date())
+    .setFields([
+      {
+        name: "ID da venda",
+        value: `${payment.id}`,
+        inline: true,
+      },
+      {
+        name: "ID do comprador",
+        value: `<@${payment.metadata?.member_id}>`,
+        inline: true,
+      },
+      {
+        name: "Live Mode",
+        value: payment.live_mode ? "Produção" : "Teste",
+        inline: true,
+      },
+      {
+        name: "Data de criação",
+        value: `${payment.date_created?.replace("T", " ").split(".")[0]} UTC`,
+        inline: true,
+      },
+      {
+        name: "Data de aprovação",
+        value: `${payment.date_aproved?.replace("T", " ").split(".")[0]} UTC`,
+        inline: true,
+      },
+      {
+        name: "Data de expiração",
+        value: `${payment.date_of_expiration?.replace("T", " ").split(".")[0]} UTC`,
+        inline: true,
+      },
+      {
+        name: "Status",
+        value: `${payment.status?.toUpperCase()}`,
+        inline: true,
+      },
+      {
+        name: "Detalhes de Status",
+        value: `${payment.status_detail?.toUpperCase()}`,
+        inline: true,
+      },
+      {
+        name: "Metodo de pagamento",
+        value: `${payment.payment_method_id?.toUpperCase()}`,
+        inline: true,
+      },
+      {
+        name: "Valor Transação",
+        value: convetToRealString(payment.transaction_amount),
+        inline: true,
+      },
+      {
+        name: "Valor Refunded",
+        value: convetToRealString(payment.transaction_amount_refunded),
+        inline: true,
+      },
+      {
+        name: "Valor Recebido",
+        value: convetToRealString(payment.transaction_details?.net_received_amount),
+        inline: true,
+      },
+      {
+        name: "Taxas",
+        value: convetToRealString(payment.taxes_amount),
+        inline: false,
+      },
+      {
+        name: "Produtos",
+        value: `aaaaaaaaaa`,
+        inline: false,
+      },
+    ]);
+
+  return embed;
 }
 
 function convetToRealString(amount: number | null | undefined) {
