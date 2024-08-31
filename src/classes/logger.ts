@@ -63,10 +63,24 @@ export class Logger {
   }
   init(option: InteractionOptions): string {
     const interaction = option.interaction;
-    const formattedMessage = this.formatMessage(
-      "INFO",
-      `command ${interaction?.isCommand() ? interaction.commandName : ""}: starting`
-    );
+    let formattedMessage = "";
+    if (interaction?.isCommand()) {
+      formattedMessage = this.formatMessage(
+        "INFO",
+        `[command] ${interaction.commandName}: starting`
+      );
+    } else if (interaction?.isModalSubmit()) {
+      formattedMessage = this.formatMessage(
+        "INFO",
+        `[modalsubmit] ${interaction.customId}: starting`
+      );
+    } else if (interaction?.isButton()) {
+      formattedMessage = this.formatMessage(
+        "INFO",
+        `[button] ${interaction.customId}: starting`
+      );
+    }
+
     console.log(formattedMessage);
     this.appendMessage(formattedMessage);
     return formattedMessage;

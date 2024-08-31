@@ -6,10 +6,15 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { logger } from "../..";
+import { adminPermission } from "../../utils/adminPermission";
+import { loggerErrorProductButton } from "../../utils/loggerErrorProductButton";
 
 export async function execute(interaction: ButtonInteraction) {
-  const { customId } = interaction;
+  logger.init({ interaction });
   try {
+    if (!(await adminPermission(interaction)))
+      throw new Error("You need admin permission to use this interaction");
+    
     const productDescriptionInput = new TextInputBuilder()
       .setCustomId("productDescriptionInput")
       .setLabel("DESCRIÇÃO DO PRODUTO")
@@ -28,7 +33,6 @@ export async function execute(interaction: ButtonInteraction) {
 
     await interaction.showModal(modal);
   } catch (error) {
-    const messageError = logger.error(`Error executing ${customId} button`, error);
-    await interaction.reply({ content: messageError });
+    await loggerErrorProductButton(interaction, error);
   }
 }

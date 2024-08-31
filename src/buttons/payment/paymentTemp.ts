@@ -10,8 +10,8 @@ type paymentDocument = Document<unknown, {}, PaymentInterface> &
     _id: Types.ObjectId;
   };
 export async function paymentTemp(data: PaymentResponse) {
+  logger.info("PaymentTemp started");
   try {
-    console.log(data);
     let paymentDb = await ModelPayment.findOne({ id: data.id });
 
     if (paymentDb) {
@@ -20,28 +20,31 @@ export async function paymentTemp(data: PaymentResponse) {
       paymentDb = (await createPaymentInDatabase(data)) || null;
     }
 
-    if (!paymentDb) return;
-    if (!paymentDb.log_message_id) {
+    if (!paymentDb) throw new Error("PaymentDb not found");
+    if (paymentDb.log_message_id) {
+      logger.info("Updating payment log message");
       const guildId = paymentDb.metadata?.guild_id;
       const guild = await client.guilds.resolve(guildId!);
       const channel = (await guild?.channels.resolve(
         "1277466443415294052"
       )) as TextChannel;
 
-      const embed = embedCreator(paymentDb);
+      const embed = createMessageEmbed(paymentDb);
 
       const messageId = paymentDb.log_message_id;
       const message = await channel.messages.resolve(messageId!);
 
       await message?.edit({ content: "API Mercado Pago", embeds: [embed] });
+      logger.info("Updated payment log message successfully");
     } else {
+      logger.info("Creating payment log message");
       const guildId = paymentDb.metadata?.guild_id;
       const guild = await client.guilds.resolve(guildId!);
       const channel = (await guild?.channels.resolve(
         "1277466443415294052"
       )) as TextChannel;
 
-      const embed = embedCreator(paymentDb);
+      const embed = createMessageEmbed(paymentDb);
 
       await channel
         .send({ content: "API Mercado Pago", embeds: [embed] })
@@ -50,13 +53,15 @@ export async function paymentTemp(data: PaymentResponse) {
           await paymentDb.save();
         })
         .catch(console.error);
+      logger.info("Created payment log message successfully");
     }
   } catch (error) {
     logger.error("Error executing payment Processing", error);
   }
 }
 
-function embedCreator(payment: paymentDocument) {
+function createMessageEmbed(payment: paymentDocument) {
+  logger.info("Creating message embed");
   const embed = new EmbedBuilder()
     .setTitle("LOG DE VENDA")
     .setTimestamp(new Date())
@@ -136,8 +141,8 @@ function embedCreator(payment: paymentDocument) {
     ]);
 
   switch (payment.status) {
-    case "pending": 
-      embed.setColor("Yellow")
+    case "pending":
+      embed.setColor("Yellow");
       break;
     case "approved":
       embed.setColor(`#00ff00`);
@@ -166,7 +171,7 @@ function embedCreator(payment: paymentDocument) {
     default:
       embed.setColor(`#000000`);
   }
-
+  logger.info("Message embed created successfully");
   return embed;
 }
 
@@ -180,6 +185,7 @@ async function updatePaymentInDatabase(
   paymentDb: paymentDocument,
   data: PaymentResponse
 ) {
+  logger.info("Updating payment in database");
   try {
     paymentDb.id = data.id;
     paymentDb.date_created = data.date_created;
@@ -225,6 +231,7 @@ async function updatePaymentInDatabase(
       data.point_of_interaction?.transaction_data?.ticket_url;
 
     await paymentDb.save();
+    logger.info("Payment updated successfully");
     return paymentDb;
   } catch (error) {
     logger.error("Error updating payment in database", error);
@@ -232,6 +239,7 @@ async function updatePaymentInDatabase(
 }
 
 async function createPaymentInDatabase(data: PaymentResponse) {
+  logger.info("Creating payment in database");
   try {
     const paymentDb = new ModelPayment({
       id: data.id,
@@ -284,6 +292,7 @@ async function createPaymentInDatabase(data: PaymentResponse) {
     });
 
     await paymentDb.save();
+    logger.info("Payment created successfully");
     return paymentDb;
   } catch (error) {
     logger.error("Error creating payment in database", error);

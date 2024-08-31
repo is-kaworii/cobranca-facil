@@ -1,11 +1,18 @@
-import { ActionRowBuilder, ButtonInteraction, ButtonStyle, ChannelType, TextChannel } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
+  ChannelType,
+  TextChannel,
+} from "discord.js";
 import { logger } from "../../..";
-import { buttonCreator } from "../../../modals/product/product.modal";
 import { ModelCart } from "../../../models/cart.model";
 import { ModelGuild } from "../../../models/guild.model";
 import { createEmbed } from "../../../utils/createEmbed";
 
 export async function getOrCreateCart(interaction: ButtonInteraction) {
+  logger.init({ interaction });
   try {
     const cart = await ModelCart.findOne({ memberId: interaction.user.id });
     if (cart) return cart;
@@ -32,6 +39,7 @@ async function createCart(interaction: ButtonInteraction) {
 }
 
 async function createMainMessage(channel: TextChannel | undefined) {
+  logger.info(`Creating message on channel ${channel?.name}`);
   try {
     if (!channel) throw new Error("Channel not specified");
 
@@ -43,28 +51,31 @@ async function createMainMessage(channel: TextChannel | undefined) {
       color: "White",
     });
 
-    const goToPaymentButton = await buttonCreator(
-      "GoToPayment",
-      "Ir para Pagamento",
-      "✔️",
-      ButtonStyle.Success
-    );
-    const cancelCartButton = await buttonCreator(
-      "CancelCart",
-      "Cancelar Carrinho",
-      "✖️",
-      ButtonStyle.Danger
-    );
+    const goToPaymentButton = new ButtonBuilder()
+      .setCustomId("productGoToPaymentButton")
+      .setLabel("Ir Para Pagamento")
+      .setEmoji("✔️")
+      .setStyle(ButtonStyle.Success);
+
+    const cancelCartButton = new ButtonBuilder()
+      .setCustomId("productCancelCartButton")
+      .setLabel("Cancelar Carrinho")
+      .setEmoji("✖️")
+      .setStyle(ButtonStyle.Danger);
+
     const row1: any = new ActionRowBuilder().addComponents(
       goToPaymentButton,
       cancelCartButton
     );
 
     const message = await channel.send({
-      embeds: [embed], components: [row1]
+      embeds: [embed],
+      components: [row1],
     });
 
-    return message
+    logger.info(`Message created successfully`);
+
+    return message;
   } catch (error) {
     logger.error("Error creating main message", error);
   }
@@ -72,6 +83,7 @@ async function createMainMessage(channel: TextChannel | undefined) {
 
 async function createChannel(interaction: ButtonInteraction) {
   try {
+    logger.info(`Creating a new cart channel to ${interaction.user.username}`);
     const guildDb = await ModelGuild.findOne({ guildId: interaction.guildId });
     const channel = await interaction.guild?.channels.create({
       name: `carrinho-${interaction.user.username}`,
@@ -108,6 +120,7 @@ async function createChannel(interaction: ButtonInteraction) {
       ],
     });
 
+    logger.info(`Channel ${channel?.name} created successfully`);
     return channel;
   } catch (error) {
     logger.error("Error creating channel", error);

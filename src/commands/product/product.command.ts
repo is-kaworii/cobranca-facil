@@ -19,6 +19,7 @@ export const data = new SlashCommandBuilder()
   );
 
 export async function execute(interaction: CommandInteraction) {
+  logger.init({ interaction });
   const { commandName } = interaction;
   try {
     const productNameInput = new TextInputBuilder()

@@ -3,6 +3,7 @@ import { logger } from "../..";
 import { ModelProduct } from "../../models/product.model";
 
 export async function execute(interaction: ModalSubmitInteraction) {
+  logger.init({ interaction });
   const { customId, fields } = interaction;
   try {
     const productPriceInput = await fields
@@ -33,6 +34,7 @@ export async function execute(interaction: ModalSubmitInteraction) {
     await interaction.message?.edit({ embeds: [embed] });
     await interaction.deferReply();
     await interaction.deleteReply();
+    logger.info(`Product price changed by ${interaction.user.username}`);
   } catch (error) {
     const messageError = logger.error(`Error executing ${customId} modal submit`, error);
     await interaction.reply({ content: messageError });

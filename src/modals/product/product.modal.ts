@@ -1,24 +1,66 @@
 import {
   ActionRowBuilder,
-  ButtonBuilder,
   ButtonStyle,
-  ComponentEmojiResolvable,
+  Message,
   ModalSubmitInteraction,
 } from "discord.js";
 import { logger } from "../..";
 import { ModelProduct } from "../../models/product.model";
+import { buttonCreator } from "../../utils/createButton";
 import { createEmbed } from "../../utils/createEmbed";
-export async function execute(interaction: ModalSubmitInteraction) {
-  const { guildId, fields, channel, customId } = interaction;
-  if (!channel || !channel.isTextBased()) return;
 
+export async function execute(interaction: ModalSubmitInteraction) {
+  logger.init({ interaction });
   try {
     await interaction.deferReply();
-    const productNameInput = fields.getTextInputValue("produtNameInput");
 
+    const productNameInput = interaction.fields.getTextInputValue("produtNameInput");
+    const embed = await embedCreator(interaction, productNameInput);
+    const components = componentsProductConfigCreator();
+
+    if (!interaction.channel || !interaction.channel!.isTextBased())
+      throw new Error("Channel is not text-based or not founded");
+
+    await interaction.channel
+      .send({ embeds: [embed], components })
+      .then(async (message) => {
+        await createModelProduct(interaction, message, productNameInput);
+      });
+
+    await interaction.deleteReply();
+  } catch (error) {
+    const messageError = logger.error(
+      `Error executing ${interaction.customId} modal submit`,
+      error
+    );
+    interaction.deferred
+      ? await interaction.editReply({ content: messageError })
+      : await interaction.reply({ content: messageError });
+  }
+}
+
+async function createModelProduct(
+  interaction: ModalSubmitInteraction,
+  message: Message,
+  productNameInput: string
+) {
+  try {
+    const productDb = new ModelProduct({
+      guildId: interaction.guildId,
+      id: message.id,
+      name: productNameInput,
+    });
+    await productDb.save();
+  } catch (error) {
+    logger.error("Error creating product in database", error);
+  }
+}
+
+async function embedCreator(interaction: ModalSubmitInteraction, productName: string) {
+  try {
     const embed = await createEmbed({
-      guildId,
-      title: productNameInput,
+      guildId: interaction.guildId,
+      title: productName,
     });
 
     embed.setFields({
@@ -27,40 +69,11 @@ export async function execute(interaction: ModalSubmitInteraction) {
       inline: false,
     });
 
-    const components = componentsProductConfigCreator();
-
-    await channel.send({ embeds: [embed], components }).then(async (message) => {
-      const productDb = new ModelProduct({
-        guildId: guildId,
-        id: message.id,
-        name: productNameInput,
-      });
-
-      await productDb.save();
-    });
-
-    await interaction.deleteReply();
+    return embed;
   } catch (error) {
-    const messageError = logger.error(`Error executing ${customId} modal submit`, error);
-    interaction.deferred
-      ? await interaction.editReply({ content: messageError })
-      : await interaction.reply({ content: messageError });
+    logger.error("Error creating embed", error);
+    throw error;
   }
-}
-
-export function buttonCreator(
-  customId: string,
-  label: string | null,
-  emoji: ComponentEmojiResolvable,
-  style: ButtonStyle = ButtonStyle.Secondary
-) {
-  const button = new ButtonBuilder()
-    .setCustomId(`product${customId}Button`)
-    .setStyle(style)
-    .setEmoji(emoji);
-
-  if (label) button.setLabel(label);
-  return button;
 }
 
 export function componentsProductConfigCreator() {
