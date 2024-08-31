@@ -13,19 +13,14 @@ type paymentDocument = Document<unknown, {}, PaymentInterface> &
   PaymentInterface & {
     _id: Types.ObjectId;
   };
-export async function paymentTemp(paymentId: number) {
+export async function paymentTemp(data: PaymentResponse) {
   try {
-    payment
-      .get({ id: paymentId })
-      .then(async (data) => {
-        const paymentDb = await getOrCreatePaymentInDatabase(data);
-        if (!paymentDb) return;
-        if (!paymentDb.log_message_id) await createLogMessage(paymentDb);
-        else {
-          await updateLogMessage(paymentDb);
-        }
-      })
-      .catch(console.error);
+    const paymentDb = await getOrCreatePaymentInDatabase(data);
+    if (!paymentDb) return;
+    if (!paymentDb.log_message_id) await createLogMessage(paymentDb);
+    else {
+      await updateLogMessage(paymentDb);
+    }
   } catch (error) {
     logger.error("Error executing payment Processing", error);
   }

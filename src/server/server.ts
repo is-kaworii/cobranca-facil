@@ -16,12 +16,12 @@ app.get("/", (req, res) => {
 
 app.post("/callback", (req, res) => {
   console.log("POST /callback");
-  
+
   if (!req.body.data) return;
   payment
     .get({ id: req.body.data.id })
     .then(async (data) => {
-      await paymentTemp(data.id!);
+      await paymentTemp(data);
     })
     .catch(console.error);
 });
