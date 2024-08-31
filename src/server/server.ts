@@ -6,6 +6,7 @@ export const app = express();
 const clientConfig = new MercadoPagoConfig({
   accessToken: process.env.accessToken!,
 });
+const payment = new Payment(clientConfig);
 
 app.use(express.json());
 
@@ -14,20 +15,21 @@ app.get("/", (req, res) => {
 });
 
 app.post("/callback", (req, res) => {
-  const payment = new Payment(clientConfig);
-  console.log("a");
+  console.log("POST /callback");
+  console.log(req.body);
 
   if (!req.body.data) return;
 
   payment
     .get({ id: req.body.id })
     .then(async (data) => {
+      console.log(data);
       await paymentTemp(data.id!);
     })
     .catch(console.error);
 });
 
-const port = 9005
+const port = 9005;
 app.listen(port, () => {
   console.log(`listening on http://localhost:${port}`);
 });
