@@ -15,6 +15,7 @@ type paymentDocument = Document<unknown, {}, PaymentInterface> &
   };
 export async function paymentTemp(data: PaymentResponse) {
   try {
+    console.log(data)
     const paymentDb = await getOrCreatePaymentInDatabase(data);
     if (!paymentDb) return;
     if (!paymentDb.log_message_id) await createLogMessage(paymentDb);
@@ -28,7 +29,6 @@ export async function paymentTemp(data: PaymentResponse) {
 
 async function updateLogMessage(payment: paymentDocument) {
   try {
-    console.log(payment.metadata);
     const guild = await client.guilds.resolve(payment.metadata.guild_id);
     const channel = (await guild?.channels.resolve("1277466443415294052")) as TextChannel;
 
@@ -204,8 +204,9 @@ async function createLogMessage(payment: paymentDocument) {
 
     await channel
       .send({ content: "API Mercado Pago", embeds: [embed] })
-      .then((message) => {
+      .then(async (message) => {
         payment.log_message_id = message.id;
+        await payment.save()
       })
       .catch(console.error);
   } catch (error) {
