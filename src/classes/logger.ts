@@ -127,7 +127,8 @@ export class Logger {
       .toLocaleString("pt-BR", dateTimeOptions)
       .replace(",", "");
     const callerFile = this.getCallerFile();
-    const [pathFile, lines] = callerFile.split(":::");
+    let [pathFile, lines] = callerFile.split(":::");
+    lines = `${lines} `
 
     let finalMessage = "";
     finalMessage += `[${timestamp}] `; // timestamp
