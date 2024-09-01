@@ -28,7 +28,7 @@ export async function execute(interaction: ModalSubmitInteraction) {
       }
     } else {
       if (productDb) {
-        if (productDb) productDb.roles.push(productRoleInput);
+        productDb.roles.push(productRoleInput);
         await productDb.save();
       }
 

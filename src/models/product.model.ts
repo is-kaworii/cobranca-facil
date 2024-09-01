@@ -3,16 +3,15 @@ import { ProductInterface } from "../interfaces/product.interface";
 
 const productSchema: Schema<ProductInterface> = new Schema({
   guildId: {
-    type: String,
+    type: String || null,
     required: true,
   },
   id: {
-    type: Number,
+    type: String || null,
     required: true,
-    unique: true,
   },
   name: {
-    type: String,
+    type: String || null,
     required: true,
   },
   description: {
@@ -26,7 +25,6 @@ const productSchema: Schema<ProductInterface> = new Schema({
   price: {
     type: Number,
     default: 0,
-    required: true,
   },
   stock: {
     type: Number || null,
@@ -56,7 +54,7 @@ const productSchema: Schema<ProductInterface> = new Schema({
     type: Number || null,
     default: 30,
   },
-  createdAt: { type: Date, default: Date.now() },
+  createdAt: { type: Date, default: new Date() },
 });
 
 export const ModelProduct = model("Products", productSchema);

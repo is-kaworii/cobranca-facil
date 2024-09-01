@@ -6,6 +6,7 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { logger } from "../..";
+import { ModelProduct } from "../../models/product.model";
 import { adminPermission } from "../../utils/adminPermission";
 import { loggerErrorProductButton } from "../../utils/loggerErrorProductButton";
 
@@ -14,10 +15,13 @@ export async function execute(interaction: ButtonInteraction) {
   try {
     if (!(await adminPermission(interaction)))
       throw new Error("You need admin permission to use this interaction");
-    
+
+    const productDb = await ModelProduct.findOne({ id: interaction.message?.id });
+
     const productDescriptionInput = new TextInputBuilder()
       .setCustomId("productDescriptionInput")
       .setLabel("DESCRIÇÃO DO PRODUTO")
+      .setValue(productDb?.description || ".")
       .setPlaceholder("Descreva o produto.")
       .setMaxLength(4000)
       .setMinLength(1)

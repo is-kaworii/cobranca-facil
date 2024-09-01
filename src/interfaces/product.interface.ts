@@ -1,6 +1,6 @@
 export interface ProductInterface {
   guildId: string;
-  id: number;
+  id: string;
   name: string;
   description: string | null;
   oldPrice: number | null;

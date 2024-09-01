@@ -12,6 +12,7 @@ import { createEmbed } from "../../utils/createEmbed";
 export async function execute(interaction: ModalSubmitInteraction) {
   logger.init({ interaction });
   try {
+    logger.info("Creating message")
     await interaction.deferReply();
 
     const productNameInput = interaction.fields.getTextInputValue("produtNameInput");
@@ -21,13 +22,12 @@ export async function execute(interaction: ModalSubmitInteraction) {
     if (!interaction.channel || !interaction.channel!.isTextBased())
       throw new Error("Channel is not text-based or not founded");
 
-    await interaction.channel
-      .send({ embeds: [embed], components })
-      .then(async (message) => {
-        await createModelProduct(interaction, message, productNameInput);
-      });
+    const message = await interaction.channel.send({ embeds: [embed], components });
+
+    await createModelProduct(interaction, message, productNameInput);
 
     await interaction.deleteReply();
+    logger.info("Message sent successfully");
   } catch (error) {
     const messageError = logger.error(
       `Error executing ${interaction.customId} modal submit`,
@@ -46,7 +46,7 @@ async function createModelProduct(
 ) {
   try {
     const productDb = new ModelProduct({
-      guildId: interaction.guildId,
+      guildId: interaction.guildId!,
       id: message.id,
       name: productNameInput,
     });
