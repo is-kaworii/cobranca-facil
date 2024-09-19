@@ -1,0 +1,7 @@
+###
+POST http://205.164.107.14:9005/callback
+Content-Type: application/json
+
+{
+  "teste": "testado"
+}
